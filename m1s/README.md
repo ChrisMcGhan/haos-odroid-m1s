@@ -84,6 +84,9 @@ official release digest/signature/payload, compares the actual mounted final
 filesystem against the actual official filesystem, checks the matching module
 tree and required module signatures, checks the exact three-option resolved
 kernel delta, and verifies the final signature and both payload hashes.
+See the [verified package record](VERIFIED-18.3.dev2026100601.md) for its exact
+checksum, size, scope and remaining hardware tests. The package is narrower in
+installation scope; it still contains complete kernel/rootfs images.
 
 Its public signing
 certificate SHA-256 fingerprint is

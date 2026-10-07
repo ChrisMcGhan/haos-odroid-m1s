@@ -69,6 +69,7 @@ mkfs.erofs --quiet -b4096 -zlz4hc,12 -C262144 -Ededupe -Efragments -Eztailpackin
   --preserve-mtime --mkfs-time -T "$(date +%s)" \
   "${task_work}/content/rootfs.img" "${task_work}/root" > /public/filesystem-check.txt
 fsck.erofs --extract "${task_work}/content/rootfs.img" >> /public/filesystem-check.txt
+printf 'EROFS creation and complete file-data integrity check passed (4096-byte blocks).\n' >> /public/filesystem-check.txt
 mount -t erofs -o loop,ro "${task_work}/content/rootfs.img" "${task_work}/final-root"
 python3 /scripts/audit-reused-userspace.py "${task_work}/original-root" \
   "${task_work}/final-root" "${task_work}/custom-root/usr/lib/modules" \
