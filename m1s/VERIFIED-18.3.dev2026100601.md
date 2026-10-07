@@ -11,8 +11,8 @@
 Mounted filesystem comparison preserved 5,923 official paths outside the module
 tree and the two declared metadata files. It preserved 222 userspace hardlink
 groups. Only three driver module files were added and no paths were removed.
-The packaged module tree matches the kernel build. Required module signatures
-verify against the module certificate embedded in the packaged kernel.
+The packaged module tree matches the kernel build. All 4,039 packaged module
+signatures verify against the module certificate embedded in the packaged kernel.
 The kernel configuration delta is exactly RTW89_8851BU and its two selected
 dependencies. The existing official board device tree matches the rebuilt one.
 
@@ -22,3 +22,12 @@ verified. The selected artifact remains a draft; on-device installation, boot,
 Wi-Fi traffic, Bluetooth coexistence and Home Assistant services are untested.
 
 The earlier full-build `18.3.dev20261006` package is superseded for installation.
+
+## Astra review follow-up — October 6, 2026
+
+The maintained verifier now checks every packaged `.ko` file and uses OpenSSL
+`-nointern` to require the designated kernel certificate rather than any
+certificate supplied inside a module signature. The strengthened verifier passed
+against the existing package. Negative checks rejected an unrelated signing
+certificate and modified module content. The package SHA-256 above is unchanged;
+this follow-up changes verification tooling, not firmware contents.

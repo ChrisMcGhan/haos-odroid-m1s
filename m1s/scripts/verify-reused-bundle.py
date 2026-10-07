@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify a two-image bundle, exact kernel config delta, and driver signatures."""
+"""Verify a two-image bundle, exact kernel config delta, and all module signatures."""
 import hashlib
 import json
 import os
@@ -64,16 +64,22 @@ module_root = work / 'final-root/usr/lib/modules/6.18.52-haos'
 records = ['Module-signing certificate is embedded in the packaged custom kernel: verified']
 for name in required:
     matches = list(module_root.rglob(f'{name}.ko')); assert len(matches) == 1
-    data = matches[0].read_bytes(); marker = b'~Module signature appended~\n'
+modules = sorted(module_root.rglob('*.ko'))
+assert modules, 'No kernel modules found in packaged rootfs'
+for module in modules:
+    name = str(module.relative_to(module_root))
+    data = module.read_bytes(); marker = b'~Module signature appended~\n'
     assert data.endswith(marker), name
     size = struct.unpack('>I', data[-len(marker)-4:-len(marker)])[0]
     end = len(data) - len(marker) - 12
     payload = work / 'module-content'; signature = work / 'module-signature.der'
     payload.write_bytes(data[:end-size]); signature.write_bytes(data[end-size:end])
+    # Require the designated kernel certificate, ignoring certificates inside CMS.
     result = subprocess.run(['openssl', 'cms', '-verify', '-binary', '-inform', 'DER',
               '-in', str(signature), '-content', str(payload), '-certfile', str(module_cert),
-              '-noverify', '-out', '/dev/null'], check=True, capture_output=True, text=True)
+              '-nointern', '-noverify', '-out', '/dev/null'], check=True, capture_output=True, text=True)
     records.append(f'{name}: {result.stderr.strip()}')
+records.append(f'All {len(modules)} packaged kernel modules verified against the designated kernel certificate (-nointern).')
 Path('/public/module-signature-verification.txt').write_text('\n'.join(records) + '\n')
 provenance = {
     'version': version, 'packaging': 'official-userspace-custom-kernel',
@@ -91,4 +97,4 @@ provenance = {
     'rauc_installation_validation': 'manifest and RAUC 1.13 source reviewed; on-device installation not performed',
 }
 Path('/public/provenance.json').write_text(json.dumps(provenance, indent=2) + '\n')
-print('Verified two-image manifest, original hook, kernel configuration delta and required module signatures.')
+print(f'Verified two-image manifest, original hook, kernel configuration delta and all {len(modules)} module signatures.')
