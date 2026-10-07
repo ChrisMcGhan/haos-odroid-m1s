@@ -7,13 +7,32 @@ mkdir -p "${task_artifacts}"
 docker run --rm -i --privileged --network none --entrypoint /bin/bash \
   -v "${build_volume}:/build" \
   -v "${signing_volume}:/signing" \
-  -e TASK_VERSION_FULL="${task_version_full}" "${build_image}" -s <<'VERIFY'
+  -e TASK_VERSION_FULL="${task_version_full}" \
+  -e TASK_MAINTENANCE_COMMIT="$(git -C "${task_source}" rev-parse HEAD)" \
+  "${build_image}" -s <<'VERIFY'
 set -euo pipefail
 umask 077
 test "$(cat /build/build.exit)" = 0
 export PATH="/build/output/host/bin:/build/output/host/sbin:${PATH}"
-task_review=/build/review-artifacts
+task_review="/build/review-artifacts/${TASK_VERSION_FULL}"
 mkdir -p "${task_review}"
+git -C /build diff -- buildroot-external/meta \
+  buildroot-external/kernel/v6.18.y/device-support-wireless.config \
+  > "${task_review}/build-runtime.patch"
+python3 - "${task_review}" <<'PY'
+import hashlib,json,os,subprocess,sys
+from pathlib import Path
+git=lambda p:subprocess.check_output(['git','-C',p,'rev-parse','HEAD'],text=True).strip()
+inputs={}
+for name in ['buildroot-external/meta','buildroot-external/kernel/v6.18.y/device-support-wireless.config']:
+    inputs[name]=hashlib.sha256((Path('/build')/name).read_bytes()).hexdigest()
+data={'version':os.environ['TASK_VERSION_FULL'],'build_source_commit':git('/build'),
+      'buildroot_commit':git('/build/buildroot'),'runtime_input_sha256':inputs,
+      'maintenance_checkout_commit':os.environ['TASK_MAINTENANCE_COMMIT'],
+      'note':'Build source commit plus build-runtime.patch identifies the runtime inputs. Maintenance tooling is tracked separately.',
+      'hardware_validation':'not performed'}
+(Path(sys.argv[1])/'provenance.json').write_text(json.dumps(data,indent=2)+'\n')
+PY
 
 task_kernel_config=/build/output/build/linux-6.18.52/.config
 if [ ! -f "${task_kernel_config}" ]; then
@@ -114,15 +133,16 @@ chown -R 1000:1000 /signing
 cd "${task_review}"
 sha256sum *.raucb cert.pem resolved-driver-config.txt packaging-check.txt \
   rootfs-check.txt driver-modinfo.txt bundle-info.json bundle-info.shell \
-  certificate-fingerprint.txt > SHA256SUMS
+  certificate-fingerprint.txt provenance.json build-runtime.patch > SHA256SUMS
 printf 'Artifacts verified in %s\n' "${task_review}"
 VERIFY
 
 docker run --rm --network none --entrypoint /bin/tar \
   -v "${build_volume}:/build":ro \
-  "${build_image}" -C /build/review-artifacts -cf - \
+  "${build_image}" -C "/build/review-artifacts/${task_version_full}" -cf - \
   "haos_odroid-m1s-${task_version_full}.raucb" cert.pem SHA256SUMS \
   resolved-driver-config.txt packaging-check.txt rootfs-check.txt \
-  driver-modinfo.txt bundle-info.json bundle-info.shell certificate-fingerprint.txt | \
+  driver-modinfo.txt bundle-info.json bundle-info.shell certificate-fingerprint.txt \
+  provenance.json build-runtime.patch | \
   tar -xf - -C "${task_artifacts}"
 printf 'Exported verified artifacts to %s\n' "${task_artifacts}"
