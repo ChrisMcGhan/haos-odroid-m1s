@@ -120,6 +120,9 @@ VERIFY
 
 docker run --rm --network none --entrypoint /bin/tar \
   -v "${build_volume}:/build":ro \
-  "${build_image}" -C /build/review-artifacts -cf - . | \
+  "${build_image}" -C /build/review-artifacts -cf - \
+  "haos_odroid-m1s-${task_version_full}.raucb" cert.pem SHA256SUMS \
+  resolved-driver-config.txt packaging-check.txt rootfs-check.txt \
+  driver-modinfo.txt bundle-info.json bundle-info.shell certificate-fingerprint.txt | \
   tar -xf - -C "${task_artifacts}"
 printf 'Exported verified artifacts to %s\n' "${task_artifacts}"

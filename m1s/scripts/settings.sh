@@ -7,7 +7,7 @@ task_minor="$(sed -n 's/^VERSION_MINOR="\([0-9]*\)"$/\1/p' "${task_source}/build
 task_suffix="$(sed -n 's/^VERSION_SUFFIX="\([A-Za-z0-9]*\)"$/\1/p' "${task_source}/buildroot-external/meta")"
 task_version_main="${task_major}.${task_minor}"
 task_version_full="${task_version_main}${task_suffix:+.${task_suffix}}"
-[[ "${task_version_full}" =~ ^[0-9]+\.[0-9]+(\.dev[0-9]+)?$ ]] || {
+[[ "${task_version_full}" =~ ^[0-9]+\.[0-9]+\.dev[0-9]+$ ]] || {
   printf 'Unexpected HAOS version: %s\n' "${task_version_full}" >&2
   return 1
 }
