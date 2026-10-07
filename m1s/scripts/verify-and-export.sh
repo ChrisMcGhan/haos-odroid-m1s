@@ -16,13 +16,13 @@ test "$(cat /build/build.exit)" = 0
 export PATH="/build/output/host/bin:/build/output/host/sbin:${PATH}"
 task_review="/build/review-artifacts/${TASK_VERSION_FULL}"
 mkdir -p "${task_review}"
-git -C /build diff -- buildroot-external/meta \
+git -c safe.directory=/build -C /build diff -- buildroot-external/meta \
   buildroot-external/kernel/v6.18.y/device-support-wireless.config \
   > "${task_review}/build-runtime.patch"
 python3 - "${task_review}" <<'PY'
 import hashlib,json,os,subprocess,sys
 from pathlib import Path
-git=lambda p:subprocess.check_output(['git','-C',p,'rev-parse','HEAD'],text=True).strip()
+git=lambda p:subprocess.check_output(['git','-c',f'safe.directory={p}','-C',p,'rev-parse','HEAD'],text=True).strip()
 inputs={}
 for name in ['buildroot-external/meta','buildroot-external/kernel/v6.18.y/device-support-wireless.config']:
     inputs[name]=hashlib.sha256((Path('/build')/name).read_bytes()).hexdigest()
