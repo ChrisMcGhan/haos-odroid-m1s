@@ -59,6 +59,9 @@ task_extracted="$(mktemp -d /build/verify-rootfs.XXXXXX)"
 trap 'rm -rf "${task_extracted}"' EXIT
 fsck.erofs --extract="${task_extracted}" /build/output/images/rootfs.erofs \
   > "${task_review}/rootfs-check.txt" 2>&1
+grep -qx "VERSION_ID=${TASK_VERSION_FULL}" "${task_extracted}/usr/lib/os-release"
+grep '^VERSION_ID=' "${task_extracted}/usr/lib/os-release" \
+  >> "${task_review}/rootfs-check.txt"
 task_image_module="$(find "${task_extracted}/usr/lib/modules" \
   -name 'rtw89_8851bu.ko*' -print -quit)"
 task_image_firmware="$(find "${task_extracted}/usr/lib/firmware" \
