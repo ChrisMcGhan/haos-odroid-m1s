@@ -19,7 +19,7 @@ firmware. Bluetooth uses the existing `btusb` driver.
 | Patch commit | `dda7fe9` |
 | Custom version | `18.3.dev20261006` |
 | Target | `odroid_m1s` / `haos-odroid-m1s` |
-| Validation | First local build in progress; image and hardware verification pending |
+| Validation | Build and image verification passed October 6, 2026; ODROID hardware tests pending |
 
 The runtime patch and version label have separate commits. Fork-specific
 documentation and helpers live under `m1s/`; upstream build machinery remains
@@ -55,6 +55,14 @@ Verified files are exported to `m1s/artifacts/`, which is excluded from Git.
 Only the signed `.raucb`, public certificate, checksums, and verification
 records are eligible for release assets. Never upload `key.pem` or a build
 volume archive.
+
+The first signed update bundle is approximately 194 MiB. Its public signing
+certificate SHA-256 fingerprint is
+`AC:F3:C3:68:60:64:88:A0:79:2C:4C:3F:5D:E3:B3:9D:2F:09:CA:F4:A6:DF:7C:72:F2:49:03:14:B4:39:BA:35`.
+The versioned GitHub draft release holds the bundle, certificate, checksums and
+verification records. The first build passed its signature, compatibility,
+payload hash, EROFS extraction, module USB alias, firmware, OS version and
+official trust-root checks. It has not been booted or tested on the ODROID.
 
 GitHub Actions is disabled for this fork. The inherited upstream workflow's
 fallback can upload a generated signing key as an artifact. A future dedicated
