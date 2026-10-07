@@ -67,7 +67,9 @@ test -n "${task_image_module}" && test -f "${task_image_module}"
 test -n "${task_image_firmware}" && test -f "${task_image_firmware}"
 cmp "${task_module}" "${task_image_module}"
 cmp "${task_firmware}" "${task_image_firmware}"
-kmod modinfo "${task_image_module}" > "${task_review}/driver-modinfo.txt"
+mkdir -p /tmp/haos-m1s-tools
+ln -sfn /build/output/host/bin/kmod /tmp/haos-m1s-tools/modinfo
+/tmp/haos-m1s-tools/modinfo "${task_image_module}" > "${task_review}/driver-modinfo.txt"
 grep -qi 'usb:v0BDApB851' "${task_review}/driver-modinfo.txt"
 printf 'Extracted root filesystem matches driver and firmware staging files.\n' \
   >> "${task_review}/rootfs-check.txt"
