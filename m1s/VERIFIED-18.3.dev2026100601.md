@@ -18,8 +18,8 @@ dependencies. The existing official board device tree matches the rebuilt one.
 
 RAUC verified the signed update and complete verity payload. Both image hashes,
 the original install-check hook and retained official update certificates were
-verified. The selected artifact remains a draft; on-device installation, boot,
-Wi-Fi traffic, Bluetooth coexistence and Home Assistant services are untested.
+verified. At package verification on October 6, on-device installation and
+hardware testing had not been performed. The artifact remains a draft.
 
 The earlier full-build `18.3.dev20261006` package is superseded for installation.
 
@@ -31,3 +31,28 @@ certificate supplied inside a module signature. The strengthened verifier passed
 against the existing package. Negative checks rejected an unrelated signing
 certificate and modified module content. The package SHA-256 above is unchanged;
 this follow-up changes verification tooling, not firmware contents.
+
+## On-device installation — October 7, 2026
+
+A fresh full Home Assistant backup was copied off the board, with matching
+SHA-256 hashes and compressed archive integrity verified. The board then
+verified the transferred bundle's signature and complete payload. RAUC installed
+the two images into slot A, and the board booted `18.3.dev2026100601` with A marked
+good. Full partition hashes confirmed that official slot B was unchanged;
+the shared boot script and board DTB were also unchanged.
+
+The native `rtw89_8851bu` driver bound to USB `0bda:b851`, loaded the existing
+firmware and created a Wi-Fi interface. Kernel taint is zero. A 5 GHz connection
+passed ten gateway pings with zero packet loss, and another ten passed while
+Bluetooth scanned. Bluetooth reception observed 26 distinct addresses initially
+and 27 during the traffic overlap. This is a short functional test, not a
+throughput or long-term stability result. Ethernet remained the primary route;
+the temporary Wi-Fi connection was removed afterward.
+
+Two follow-up gaps remain: the access point rejected forced 2.4 GHz
+authentication with status 37, and two Matter devices plus some Alexa controls
+remained unavailable after reboot. Their causes have not been established.
+Supervisor reports healthy/supported, all previously running apps restarted,
+and the local Thread border router rejoined as a router. Device reconnection
+follow-up is pending; this record does not claim that every Home Assistant
+device passed validation.

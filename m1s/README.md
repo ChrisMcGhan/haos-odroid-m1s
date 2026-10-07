@@ -14,7 +14,10 @@ ownership, xattrs, symlinks, file/symlink timestamps and userspace hardlinks
 outside the module tree and two declared metadata files: `usr/lib/os-release`
 (custom version) and `etc/rauc/keyring.pem` (our added public certificate).
 Directory timestamps and inode numbers can change when repackaging. Official
-firmware and userspace binaries are retained. Hardware testing remains pending.
+firmware and userspace binaries are retained. The selected package booted on
+ODROID-M1S on October 7, 2026; 5 GHz Wi-Fi association/traffic and Bluetooth
+reception passed. Forced 2.4 GHz authentication and some post-reboot Home
+Assistant device reconnections remain unresolved; see the verification record.
 
 ## Current patch and status
 
@@ -33,7 +36,7 @@ firmware. Bluetooth uses the existing `btusb` driver.
 | Kernel build reference | `18.3.dev20261006` (full build; superseded for installation) |
 | Selected update version | `18.3.dev2026100601` (official userspace reused) |
 | Target | `odroid_m1s` / `haos-odroid-m1s` |
-| Validation | Kernel, reused-userspace filesystem, two-image bundle and signatures verified October 6, 2026; ODROID hardware tests pending |
+| Validation | Package/signatures verified October 6; slot A boot, 5 GHz Wi-Fi traffic and Bluetooth reception passed October 7; follow-up gaps recorded in `VERIFIED-18.3.dev2026100601.md` |
 
 The runtime patch and version label have separate commits. Fork-specific
 documentation and helpers live under `m1s/`; upstream build machinery remains
