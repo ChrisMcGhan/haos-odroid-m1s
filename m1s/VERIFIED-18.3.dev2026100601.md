@@ -56,3 +56,13 @@ Supervisor reports healthy/supported, all previously running apps restarted,
 and the local Thread border router rejoined as a router. Device reconnection
 follow-up is pending; this record does not claim that every Home Assistant
 device passed validation.
+
+## Follow-up — October 7, 2026, 07:51 EDT
+
+The system remained booted in slot A, good, after about 7.5 hours. Kernel taint
+remained zero, Supervisor reported healthy/supported, and no new kernel or
+Wi-Fi driver fault was found in current logs. Both Matter devices unavailable
+immediately after reboot have reconnected. Fifteen Alexa controls remain
+unavailable, without established firmware causation. The earlier 2.4 GHz
+authentication rejection remains unresolved. Wi-Fi is disconnected with Ethernet
+primary; this uptime does not establish sustained Wi-Fi traffic stability.
