@@ -1,4 +1,4 @@
-> **Personal ODROID-M1S fork:** see [build status, patch, verification and maintenance](m1s/README.md). Custom images are not official Home Assistant releases.
+> **Personal ODROID-M1S Wi-Fi patch:** the selected update reuses official HAOS userspace and replaces only the kernel and matching modules. It omits boot/SPL images. See [scope, verification and maintenance](m1s/README.md). Custom updates are not official Home Assistant releases.
 
 # Home Assistant Operating System
 
